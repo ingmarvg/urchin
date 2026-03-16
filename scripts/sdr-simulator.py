@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Multi-Protocol SDR Simulator — sends rtl_433, dump1090, OP25, LoRaWAN, Meshtastic,
-Wireless M-Bus, Z-Wave, and Amazon Sidewalk-format JSON over TCP.
+Multi-Protocol SDR Simulator — sends rtl_433, dump1090, OP25, DMR, NXDN, LoRaWAN,
+Meshtastic, Wireless M-Bus, Z-Wave, and Amazon Sidewalk-format JSON over TCP.
 
-Simulates TPMS, POCSAG, ADS-B, P25, LoRaWAN, Meshtastic, Wireless M-Bus, Z-Wave,
-and Amazon Sidewalk traffic for testing Urchin's multi-protocol pipeline without real
-RF hardware.
+Simulates TPMS, POCSAG, ADS-B, P25, DMR, NXDN, LoRaWAN, Meshtastic, Wireless M-Bus,
+Z-Wave, and Amazon Sidewalk traffic for testing Urchin's multi-protocol pipeline
+without real RF hardware.
 
 Usage:
   python3 scripts/sdr-simulator.py                         # all protocols, 2s interval
@@ -14,6 +14,8 @@ Usage:
   python3 scripts/sdr-simulator.py --burst                  # 100ms stress test
   python3 scripts/sdr-simulator.py --adsb-port 30003        # separate ADS-B port
   python3 scripts/sdr-simulator.py --p25-port 23456         # separate P25 port
+  python3 scripts/sdr-simulator.py --dmr-port 23457         # separate DMR port
+  python3 scripts/sdr-simulator.py --nxdn-port 23458        # separate NXDN port
   python3 scripts/sdr-simulator.py --lorawan-port 1680      # separate LoRaWAN port
   python3 scripts/sdr-simulator.py --meshtastic-port 1680   # separate Meshtastic port
   python3 scripts/sdr-simulator.py --wmbus-port 1681        # separate Wireless M-Bus port
@@ -27,6 +29,8 @@ ADS-B data based on publicly available format from dump1090/readsb.
 POCSAG data uses standard pager protocol format (CAP codes, function codes).
 TPMS data uses real rtl_433 decoder model names.
 P25 data uses OP25-compatible metadata JSON format.
+DMR data uses dmr_json_bridge-compatible metadata JSON format.
+NXDN data uses nxdn_json_bridge-compatible metadata JSON format.
 LoRaWAN data uses lora_json_bridge-compatible rxpk JSON format.
 Meshtastic data uses lora_json_bridge-compatible format with mesh headers.
 Wireless M-Bus data uses wmbus_json_bridge-compatible format.
@@ -222,6 +226,42 @@ SIDEWALK_PROFILES = [
 ]
 
 SIDEWALK_FRAME_TYPES = ["data", "ack", "keep_alive", "auth"]
+
+# ─── DMR Profiles ───────────────────────────────────────────────────────────
+# Simulates DMR (Digital Mobile Radio) trunked radio metadata.
+# Radio IDs, color codes, slots, and talkgroups are simulated.
+
+DMR_PROFILES = [
+    {"radio_id": "3001001", "color_code": 1, "slot": 1},
+    {"radio_id": "3001002", "color_code": 1, "slot": 2},
+    {"radio_id": "3001050", "color_code": 1, "slot": 1},
+    {"radio_id": "3002001", "color_code": 3, "slot": 1},
+    {"radio_id": "3002002", "color_code": 3, "slot": 2},
+    {"radio_id": "3002100", "color_code": 3, "slot": 1},
+]
+
+DMR_TALKGROUPS = [
+    "1", "2", "9", "91", "310", "3100", "3106", "3172",
+    "10100", "10200", "31010", "31066",
+]
+
+# ─── NXDN Profiles ──────────────────────────────────────────────────────────
+# Simulates NXDN (Kenwood/Icom) trunked radio metadata.
+# Unit IDs and RANs are simulated.
+
+NXDN_PROFILES = [
+    {"unit_id": "10001", "ran": 1},
+    {"unit_id": "10002", "ran": 1},
+    {"unit_id": "10050", "ran": 1},
+    {"unit_id": "20001", "ran": 5},
+    {"unit_id": "20002", "ran": 5},
+    {"unit_id": "20100", "ran": 5},
+]
+
+NXDN_TALKGROUPS = [
+    "100", "200", "300", "500", "1000", "2000",
+    "10100", "10200", "20100",
+]
 
 # Squawk codes — publicly known standard codes
 SQUAWK_CODES = [
@@ -427,6 +467,36 @@ def generate_sidewalk(profile):
     }
 
 
+def generate_dmr(profile):
+    """Generate a single DMR digital radio JSON reading."""
+    return {
+        "type": "dmr",
+        "radio_id": profile["radio_id"],
+        "color_code": profile["color_code"],
+        "slot": profile["slot"],
+        "talkgroup": random.choice(DMR_TALKGROUPS),
+        "data_type": random.choice(["voice", "data", "csbk", "idle"]),
+        "encrypted": random.choices([False, True], weights=[85, 15])[0],
+        "rssi": round(random.uniform(-90.0, -40.0), 1),
+        "snr": round(random.uniform(5.0, 20.0), 1),
+        "freq": round(random.uniform(400.0, 500.0), 4),
+    }
+
+
+def generate_nxdn(profile):
+    """Generate a single NXDN digital radio JSON reading."""
+    return {
+        "type": "nxdn",
+        "unit_id": profile["unit_id"],
+        "ran": profile["ran"],
+        "talkgroup": random.choice(NXDN_TALKGROUPS),
+        "message_type": random.choice(["vcall", "dcall", "idle", "reg"]),
+        "rssi": round(random.uniform(-95.0, -40.0), 1),
+        "snr": round(random.uniform(5.0, 18.0), 1),
+        "freq": round(random.uniform(400.0, 500.0), 4),
+    }
+
+
 def generate_adsb_aircraft_json(profiles, count=None):
     """Generate dump1090 aircraft.json format (array wrapper)."""
     if count is None:
@@ -607,6 +677,38 @@ def handle_sidewalk_client(conn, addr, sidewalk_profiles, interval):
         conn.close()
 
 
+def handle_dmr_client(conn, addr, dmr_profiles, interval):
+    """Send DMR digital radio readings to a connected client."""
+    print(f"[DMR] Client connected: {addr}")
+    try:
+        while True:
+            profile = random.choice(dmr_profiles)
+            reading = generate_dmr(profile)
+            line = json.dumps(reading) + "\n"
+            conn.sendall(line.encode("utf-8"))
+            time.sleep(interval)
+    except (BrokenPipeError, ConnectionResetError, OSError):
+        print(f"[DMR] Client disconnected: {addr}")
+    finally:
+        conn.close()
+
+
+def handle_nxdn_client(conn, addr, nxdn_profiles, interval):
+    """Send NXDN digital radio readings to a connected client."""
+    print(f"[NXDN] Client connected: {addr}")
+    try:
+        while True:
+            profile = random.choice(nxdn_profiles)
+            reading = generate_nxdn(profile)
+            line = json.dumps(reading) + "\n"
+            conn.sendall(line.encode("utf-8"))
+            time.sleep(interval)
+    except (BrokenPipeError, ConnectionResetError, OSError):
+        print(f"[NXDN] Client disconnected: {addr}")
+    finally:
+        conn.close()
+
+
 def start_server(port, handler, name, *handler_args):
     """Start a TCP server on the given port."""
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -671,9 +773,17 @@ def main():
         help="TCP port for Amazon Sidewalk data (default: 1683)"
     )
     parser.add_argument(
+        "--dmr-port", type=int, default=23457,
+        help="TCP port for DMR data (default: 23457)"
+    )
+    parser.add_argument(
+        "--nxdn-port", type=int, default=23458,
+        help="TCP port for NXDN data (default: 23458)"
+    )
+    parser.add_argument(
         "--protocols", nargs="+",
-        default=["tpms", "pocsag", "adsb", "uat", "p25", "lorawan", "meshtastic", "wmbus", "zwave", "sidewalk"],
-        choices=["tpms", "pocsag", "adsb", "uat", "p25", "lorawan", "meshtastic", "wmbus", "zwave", "sidewalk"],
+        default=["tpms", "pocsag", "adsb", "uat", "p25", "dmr", "nxdn", "lorawan", "meshtastic", "wmbus", "zwave", "sidewalk"],
+        choices=["tpms", "pocsag", "adsb", "uat", "p25", "dmr", "nxdn", "lorawan", "meshtastic", "wmbus", "zwave", "sidewalk"],
         help="Protocols to simulate (default: all)"
     )
     parser.add_argument(
@@ -719,6 +829,28 @@ def main():
             handle_p25_client,
             "P25",
             P25_PROFILES,
+            interval,
+        )
+        servers.append(s)
+
+    # DMR server
+    if "dmr" in protocols:
+        s = start_server(
+            args.dmr_port,
+            handle_dmr_client,
+            "DMR",
+            DMR_PROFILES,
+            interval,
+        )
+        servers.append(s)
+
+    # NXDN server
+    if "nxdn" in protocols:
+        s = start_server(
+            args.nxdn_port,
+            handle_nxdn_client,
+            "NXDN",
+            NXDN_PROFILES,
             interval,
         )
         servers.append(s)

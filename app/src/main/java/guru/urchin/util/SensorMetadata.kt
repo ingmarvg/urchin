@@ -41,17 +41,26 @@ data class SensorMetadata(
   val p25Wacn: String? = null,
   val p25SystemId: String? = null,
   val p25TalkGroupId: String? = null,
+  val p25EncryptionAlgorithm: String? = null,
+  val p25EncryptionKeyId: String? = null,
+  val p25Emergency: Boolean? = null,
+  val p25VoiceOrData: String? = null,
   val loraDevAddr: String? = null,
   val loraSpreadingFactor: String? = null,
   val loraCodingRate: String? = null,
   val loraPayloadSize: Int? = null,
   val loraCrcOk: Boolean? = null,
+  val loraFPort: Int? = null,
+  val loraFrameCounter: Int? = null,
+  val loraMType: String? = null,
   val meshNodeId: String? = null,
   val meshDestId: String? = null,
   val meshPacketId: Int? = null,
   val meshHopLimit: Int? = null,
   val meshHopStart: Int? = null,
   val meshChannelHash: String? = null,
+  val meshPortNum: String? = null,
+  val meshPayloadText: String? = null,
   val wmbusManufacturer: String? = null,
   val wmbusSerialNumber: String? = null,
   val wmbusMeterVersion: Int? = null,
@@ -59,6 +68,25 @@ data class SensorMetadata(
   val zwaveHomeId: String? = null,
   val zwaveNodeId: Int? = null,
   val zwaveFrameType: String? = null,
+  val zwaveCommandClass: String? = null,
+  val zwaveNodeRole: String? = null,
+  val zwaveSecurityLevel: String? = null,
+  val dmrRadioId: String? = null,
+  val dmrColorCode: Int? = null,
+  val dmrSlot: Int? = null,
+  val dmrTalkGroup: String? = null,
+  val dmrDataType: String? = null,
+  val dmrEncrypted: Boolean? = null,
+  val nxdnUnitId: String? = null,
+  val nxdnRan: Int? = null,
+  val nxdnTalkGroup: String? = null,
+  val nxdnMessageType: String? = null,
+  val receiverLat: Double? = null,
+  val receiverLon: Double? = null,
+  val receiverAltitude: Double? = null,
+  val receiverAccuracy: Float? = null,
+  val adsbRangeKm: Double? = null,
+  val adsbBearingDeg: Double? = null,
   val sidewalkSmsn: String? = null,
   val sidewalkFrameType: String? = null,
   val rssi: Int? = null,
@@ -111,17 +139,26 @@ object SensorMetadataParser {
         p25Wacn = json.optStringOrNull("p25Wacn"),
         p25SystemId = json.optStringOrNull("p25SystemId"),
         p25TalkGroupId = json.optStringOrNull("p25TalkGroupId"),
+        p25EncryptionAlgorithm = json.optStringOrNull("p25EncryptionAlgorithm"),
+        p25EncryptionKeyId = json.optStringOrNull("p25EncryptionKeyId"),
+        p25Emergency = json.optBooleanOrNull("p25Emergency"),
+        p25VoiceOrData = json.optStringOrNull("p25VoiceOrData"),
         loraDevAddr = json.optStringOrNull("loraDevAddr"),
         loraSpreadingFactor = json.optStringOrNull("loraSpreadingFactor"),
         loraCodingRate = json.optStringOrNull("loraCodingRate"),
         loraPayloadSize = json.optIntOrNull("loraPayloadSize"),
         loraCrcOk = json.optBooleanOrNull("loraCrcOk"),
+        loraFPort = json.optIntOrNull("loraFPort"),
+        loraFrameCounter = json.optIntOrNull("loraFrameCounter"),
+        loraMType = json.optStringOrNull("loraMType"),
         meshNodeId = json.optStringOrNull("meshNodeId"),
         meshDestId = json.optStringOrNull("meshDestId"),
         meshPacketId = json.optIntOrNull("meshPacketId"),
         meshHopLimit = json.optIntOrNull("meshHopLimit"),
         meshHopStart = json.optIntOrNull("meshHopStart"),
         meshChannelHash = json.optStringOrNull("meshChannelHash"),
+        meshPortNum = json.optStringOrNull("meshPortNum"),
+        meshPayloadText = json.optStringOrNull("meshPayloadText"),
         wmbusManufacturer = json.optStringOrNull("wmbusManufacturer"),
         wmbusSerialNumber = json.optStringOrNull("wmbusSerialNumber"),
         wmbusMeterVersion = json.optIntOrNull("wmbusMeterVersion"),
@@ -129,6 +166,25 @@ object SensorMetadataParser {
         zwaveHomeId = json.optStringOrNull("zwaveHomeId"),
         zwaveNodeId = json.optIntOrNull("zwaveNodeId"),
         zwaveFrameType = json.optStringOrNull("zwaveFrameType"),
+        zwaveCommandClass = json.optStringOrNull("zwaveCommandClass"),
+        zwaveNodeRole = json.optStringOrNull("zwaveNodeRole"),
+        zwaveSecurityLevel = json.optStringOrNull("zwaveSecurityLevel"),
+        dmrRadioId = json.optStringOrNull("dmrRadioId"),
+        dmrColorCode = json.optIntOrNull("dmrColorCode"),
+        dmrSlot = json.optIntOrNull("dmrSlot"),
+        dmrTalkGroup = json.optStringOrNull("dmrTalkGroup"),
+        dmrDataType = json.optStringOrNull("dmrDataType"),
+        dmrEncrypted = json.optBooleanOrNull("dmrEncrypted"),
+        nxdnUnitId = json.optStringOrNull("nxdnUnitId"),
+        nxdnRan = json.optIntOrNull("nxdnRan"),
+        nxdnTalkGroup = json.optStringOrNull("nxdnTalkGroup"),
+        nxdnMessageType = json.optStringOrNull("nxdnMessageType"),
+        receiverLat = json.optDoubleOrNull("receiverLat"),
+        receiverLon = json.optDoubleOrNull("receiverLon"),
+        receiverAltitude = json.optDoubleOrNull("receiverAltitude"),
+        receiverAccuracy = json.optDoubleOrNull("receiverAccuracy")?.toFloat(),
+        adsbRangeKm = json.optDoubleOrNull("adsbRangeKm"),
+        adsbBearingDeg = json.optDoubleOrNull("adsbBearingDeg"),
         sidewalkSmsn = json.optStringOrNull("sidewalkSmsn"),
         sidewalkFrameType = json.optStringOrNull("sidewalkFrameType"),
         rssi = json.optIntOrNull("rssi"),
@@ -156,6 +212,8 @@ object SensorPresentationBuilder {
       "meshtastic" -> buildMeshtastic(device, metadata)
       "wmbus" -> buildWmBus(device, metadata)
       "zwave" -> buildZwave(device, metadata)
+      "dmr" -> buildDmr(device, metadata)
+      "nxdn" -> buildNxdn(device, metadata)
       "sidewalk" -> buildSidewalk(device, metadata)
       else -> buildTpms(device, metadata)
     }
@@ -259,6 +317,8 @@ object SensorPresentationBuilder {
       if (metadata.adsbLat != null && metadata.adsbLon != null) {
         add(String.format("Position: %.4f, %.4f", metadata.adsbLat, metadata.adsbLon))
       }
+      metadata.adsbRangeKm?.let { add(String.format("Range: %.1f km", it)) }
+      metadata.adsbBearingDeg?.let { add(String.format("Bearing: %.0f°", it)) }
       metadata.rssi?.let { add(Formatters.formatRssi(it)) }
       metadata.source?.let { add("Source: $it") }
     }
@@ -292,6 +352,9 @@ object SensorPresentationBuilder {
       metadata.p25Nac?.let { add("NAC: $it") }
       metadata.p25Wacn?.let { add("WACN: $it") }
       metadata.p25SystemId?.let { add("System ID: $it") }
+      metadata.p25EncryptionAlgorithm?.let { add("Encryption: $it") }
+      if (metadata.p25Emergency == true) add("EMERGENCY")
+      metadata.p25VoiceOrData?.let { add("Type: $it") }
       metadata.classificationLabel?.let { add("Classification: $it") }
       metadata.rssi?.let { add(Formatters.formatRssi(it)) }
       metadata.source?.let { add("Source: $it") }
@@ -317,6 +380,7 @@ object SensorPresentationBuilder {
       metadata.loraDevAddr?.let { add("DevAddr: $it") }
       metadata.loraSpreadingFactor?.let { add(it) }
       metadata.loraPayloadSize?.let { add("${it}B") }
+      metadata.loraFPort?.let { add("FPort: $it") }
     }
 
     val detailLines = buildList {
@@ -325,6 +389,9 @@ object SensorPresentationBuilder {
       metadata.loraCodingRate?.let { add("Coding Rate: $it") }
       metadata.loraPayloadSize?.let { add("Payload: $it bytes") }
       metadata.loraCrcOk?.let { add("CRC: ${if (it) "OK" else "Failed"}") }
+      metadata.loraFPort?.let { add("FPort: $it") }
+      metadata.loraFrameCounter?.let { add("Frame Count: $it") }
+      metadata.loraMType?.let { add("MType: $it") }
       metadata.classificationLabel?.let { add("Classification: $it") }
       metadata.rssi?.let { add(Formatters.formatRssi(it)) }
       metadata.source?.let { add("Source: $it") }
@@ -351,6 +418,10 @@ object SensorPresentationBuilder {
         metadata.meshHopStart?.let { start -> add("Hops: ${start - remaining} of $start") }
       }
       metadata.meshChannelHash?.let { add("Ch: $it") }
+      metadata.meshPortNum?.let { add("Port: $it") }
+      metadata.meshPayloadText?.let { msg ->
+        add(msg.take(40) + if (msg.length > 40) "..." else "")
+      }
     }
 
     val detailLines = buildList {
@@ -360,6 +431,8 @@ object SensorPresentationBuilder {
       metadata.meshHopLimit?.let { add("Hop Limit: $it") }
       metadata.meshHopStart?.let { add("Hop Start: $it") }
       metadata.meshChannelHash?.let { add("Channel Hash: $it") }
+      metadata.meshPortNum?.let { add("Port: $it") }
+      metadata.meshPayloadText?.let { add("Text: $it") }
       metadata.classificationLabel?.let { add("Classification: $it") }
       metadata.rssi?.let { add(Formatters.formatRssi(it)) }
       metadata.source?.let { add("Source: $it") }
@@ -426,6 +499,9 @@ object SensorPresentationBuilder {
       metadata.zwaveHomeId?.let { add("Home ID: $it") }
       metadata.zwaveNodeId?.let { add("Node ID: $it") }
       metadata.zwaveFrameType?.let { add("Frame Type: $it") }
+      metadata.zwaveCommandClass?.let { add("Command Class: $it") }
+      metadata.zwaveNodeRole?.let { add("Role: $it") }
+      metadata.zwaveSecurityLevel?.let { add("Security: $it") }
       metadata.classificationLabel?.let { add("Classification: $it") }
       metadata.rssi?.let { add(Formatters.formatRssi(it)) }
       metadata.source?.let { add("Source: $it") }
@@ -437,6 +513,71 @@ object SensorPresentationBuilder {
       detailLines = detailLines,
       searchText = buildSearchText(preferredTitle, metadata),
       protocolType = "zwave"
+    )
+  }
+
+  private fun buildDmr(device: DeviceEntity, metadata: SensorMetadata): SensorPresentation {
+    val tgPart = metadata.dmrTalkGroup?.let { " on TG $it" } ?: ""
+    val preferredTitle = device.userCustomName?.takeIf(String::isNotBlank)
+      ?: metadata.dmrRadioId?.let { "DMR $it$tgPart" }
+      ?: device.displayName?.takeIf(String::isNotBlank)
+      ?: "Unknown DMR radio"
+
+    val listSummaryParts = buildList {
+      metadata.dmrRadioId?.let { add("Radio: $it") }
+      metadata.dmrTalkGroup?.let { add("TG: $it") }
+      metadata.dmrSlot?.let { add("Slot: $it") }
+    }
+
+    val detailLines = buildList {
+      metadata.dmrRadioId?.let { add("Radio ID: $it") }
+      metadata.dmrColorCode?.let { add("Color Code: $it") }
+      metadata.dmrSlot?.let { add("Slot: $it") }
+      metadata.dmrTalkGroup?.let { add("Talk Group: $it") }
+      metadata.dmrDataType?.let { add("Data Type: $it") }
+      metadata.dmrEncrypted?.let { add("Encrypted: ${if (it) "Yes" else "No"}") }
+      metadata.classificationLabel?.let { add("Classification: $it") }
+      metadata.rssi?.let { add(Formatters.formatRssi(it)) }
+      metadata.source?.let { add("Source: $it") }
+    }
+
+    return SensorPresentation(
+      title = preferredTitle,
+      listSummary = listSummaryParts.joinToString(" • "),
+      detailLines = detailLines,
+      searchText = buildSearchText(preferredTitle, metadata),
+      protocolType = "dmr"
+    )
+  }
+
+  private fun buildNxdn(device: DeviceEntity, metadata: SensorMetadata): SensorPresentation {
+    val tgPart = metadata.nxdnTalkGroup?.let { " on TG $it" } ?: ""
+    val preferredTitle = device.userCustomName?.takeIf(String::isNotBlank)
+      ?: metadata.nxdnUnitId?.let { "NXDN $it$tgPart" }
+      ?: device.displayName?.takeIf(String::isNotBlank)
+      ?: "Unknown NXDN unit"
+
+    val listSummaryParts = buildList {
+      metadata.nxdnUnitId?.let { add("Unit: $it") }
+      metadata.nxdnTalkGroup?.let { add("TG: $it") }
+    }
+
+    val detailLines = buildList {
+      metadata.nxdnUnitId?.let { add("Unit ID: $it") }
+      metadata.nxdnRan?.let { add("RAN: $it") }
+      metadata.nxdnTalkGroup?.let { add("Talk Group: $it") }
+      metadata.nxdnMessageType?.let { add("Message Type: $it") }
+      metadata.classificationLabel?.let { add("Classification: $it") }
+      metadata.rssi?.let { add(Formatters.formatRssi(it)) }
+      metadata.source?.let { add("Source: $it") }
+    }
+
+    return SensorPresentation(
+      title = preferredTitle,
+      listSummary = listSummaryParts.joinToString(" • "),
+      detailLines = detailLines,
+      searchText = buildSearchText(preferredTitle, metadata),
+      protocolType = "nxdn"
     )
   }
 
@@ -491,6 +632,10 @@ object SensorPresentationBuilder {
         metadata.wmbusSerialNumber,
         metadata.wmbusManufacturer,
         metadata.zwaveHomeId,
+        metadata.dmrRadioId,
+        metadata.dmrTalkGroup,
+        metadata.nxdnUnitId,
+        metadata.nxdnTalkGroup,
         metadata.sidewalkSmsn,
         metadata.rawJson
       ).forEach {

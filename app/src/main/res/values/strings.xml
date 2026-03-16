@@ -76,12 +76,16 @@
   <string name="protocol_filter_adsb">Aircraft</string>
   <string name="protocol_filter_uat">UAT</string>
   <string name="protocol_filter_p25">P25</string>
+  <string name="protocol_filter_dmr">DMR</string>
+  <string name="protocol_filter_nxdn">NXDN</string>
   <string name="protocol_filter_lorawan">LoRa</string>
   <string name="protocol_filter_meshtastic">Mesh</string>
   <string name="protocol_filter_wmbus">M-Bus</string>
   <string name="protocol_filter_zwave">Z-Wave</string>
   <string name="protocol_filter_sidewalk">Sidewalk</string>
   <string name="protocol_p25">P25 Radio (136-800 MHz)</string>
+  <string name="protocol_dmr">DMR Radio (400-500 MHz)</string>
+  <string name="protocol_nxdn">NXDN Radio (400-500 MHz)</string>
   <string name="protocol_lorawan">LoRaWAN (900 MHz) · RAK HAT</string>
   <string name="protocol_meshtastic">Meshtastic (900 MHz) · RAK HAT</string>
   <string name="protocol_wmbus">Wireless M-Bus (868 MHz) · RAK HAT · EU</string>
@@ -89,6 +93,8 @@
   <string name="protocol_sidewalk">Sidewalk (900 MHz) · RAK HAT</string>
   <string name="uat_network_port">UAT data port (default 30978)</string>
   <string name="p25_network_port">OP25 metadata port (default 23456)</string>
+  <string name="dmr_network_port">DMR metadata port (default 23457)</string>
+  <string name="nxdn_network_port">NXDN metadata port (default 23458)</string>
   <string name="lorawan_network_port">LoRaWAN port (default 1680)</string>
   <string name="wmbus_network_port">wM-Bus port (default 1681)</string>
   <string name="zwave_network_port">Z-Wave port (default 1682)</string>
@@ -134,7 +140,7 @@
   <string name="alert_rule_deleted">Alert rule deleted.</string>
   <string name="alert_invalid_name">Enter a device name or model to match.</string>
   <string name="alert_invalid_id">Enter a valid sensor ID, ICAO hex, CAP code, or unit ID.</string>
-  <string name="alert_invalid_protocol">Enter a valid protocol: tpms, pocsag, adsb, uat, p25, lorawan, meshtastic, wmbus, zwave, or sidewalk.</string>
+  <string name="alert_invalid_protocol">Enter a valid protocol: tpms, pocsag, adsb, uat, p25, dmr, nxdn, lorawan, meshtastic, wmbus, zwave, or sidewalk.</string>
   <string name="no_alert_rules">No alert rules yet. Tap + to create one.</string>
   <string name="alert_notification_channel_name">Device Alerts</string>
   <string name="alert_notification_channel_description">Audio and visual alerts when matching SDR devices are observed.</string>

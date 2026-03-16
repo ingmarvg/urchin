@@ -15,7 +15,8 @@ enum class AlertRuleType(
   PROTOCOL("protocol", "Protocol", "tpms, pocsag, adsb, uat, p25, lorawan, meshtastic, wmbus, zwave, or sidewalk"),
   RSSI_THRESHOLD("rssi_threshold", "Proximity (RSSI)", "Protocol and RSSI threshold (e.g. -50)"),
   NEW_DEVICE("new_device", "New device", "Protocol to watch for new emitters"),
-  ABSENCE("absence", "Absence", "Protocol and absence timeout in minutes");
+  ABSENCE("absence", "Absence", "Protocol and absence timeout in minutes"),
+  SURVEILLANCE("surveillance", "Surveillance", "TPMS follow detection (automatic)");
 
   companion object {
     fun fromStorageValue(value: String?): AlertRuleType? {
@@ -130,6 +131,9 @@ object AlertRuleInputNormalizer {
         if (minutes <= 0) return null
         NormalizedAlertRuleInput(pattern = "", displayValue = "$minutes min")
       }
+      AlertRuleType.SURVEILLANCE -> {
+        NormalizedAlertRuleInput(pattern = "tpms", displayValue = "TPMS follow detection")
+      }
     }
   }
 }
@@ -169,6 +173,10 @@ object DeviceAlertMatcher {
         }
         AlertRuleType.ABSENCE -> {
           // Absence alerts are evaluated externally by the absence checker, not here
+          false
+        }
+        AlertRuleType.SURVEILLANCE -> {
+          // Surveillance alerts are evaluated by SurveillanceDetector, not here
           false
         }
       }

@@ -43,6 +43,8 @@ class SdrController(
   private var uatBridge: TcpStreamBridge<SdrReading.Adsb>? = null
   private var p25Bridge: TcpStreamBridge<SdrReading.P25>? = null
   private var p25Process: P25Process? = null
+  private var dmrBridge: TcpStreamBridge<SdrReading.Dmr>? = null
+  private var nxdnBridge: TcpStreamBridge<SdrReading.Nxdn>? = null
   private var lorawanBridge: TcpStreamBridge<SdrReading.LoRaWan>? = null
   private var meshtasticBridge: TcpStreamBridge<SdrReading.Meshtastic>? = null
   private var wmbusBridge: TcpStreamBridge<SdrReading.WmBus>? = null
@@ -94,6 +96,10 @@ class SdrController(
     p25Bridge = null
     p25Process?.stop()
     p25Process = null
+    dmrBridge?.disconnect()
+    dmrBridge = null
+    nxdnBridge?.disconnect()
+    nxdnBridge = null
     lorawanBridge?.disconnect()
     lorawanBridge = null
     meshtasticBridge?.disconnect()
@@ -196,6 +202,16 @@ class SdrController(
       startP25NetworkBridge(host)
     }
 
+    // DMR bridge on separate port
+    if ("dmr" in enabledProtocols) {
+      startDmrNetworkBridge(host)
+    }
+
+    // NXDN bridge on separate port
+    if ("nxdn" in enabledProtocols) {
+      startNxdnNetworkBridge(host)
+    }
+
     // LoRaWAN bridge (network-only, SPI concentrator on Pi HAT)
     if ("lorawan" in enabledProtocols) {
       startLoRaWanNetworkBridge(host)
@@ -272,6 +288,42 @@ class SdrController(
       onError = { message ->
         DebugLog.log("P25 network bridge error: $message")
         ScanDiagnosticsStore.update { snapshot -> snapshot.copy(lastError = "P25: $message") }
+      }
+    )
+  }
+
+  private fun startDmrNetworkBridge(host: String) {
+    val dmrPort = SdrPreferences.dmrNetworkPort(context)
+    DebugLog.log("DMR starting network bridge to $host:$dmrPort")
+    dmrBridge?.disconnect()
+    val bridge = TcpStreamBridge<SdrReading.Dmr>("DMR network bridge", DmrJsonParser::parse)
+    dmrBridge = bridge
+    bridge.connect(
+      scope = scope,
+      host = host,
+      port = dmrPort,
+      onReading = { reading -> handleSdrReading(reading) },
+      onError = { message ->
+        DebugLog.log("DMR network bridge error: $message")
+        ScanDiagnosticsStore.update { snapshot -> snapshot.copy(lastError = "DMR: $message") }
+      }
+    )
+  }
+
+  private fun startNxdnNetworkBridge(host: String) {
+    val nxdnPort = SdrPreferences.nxdnNetworkPort(context)
+    DebugLog.log("NXDN starting network bridge to $host:$nxdnPort")
+    nxdnBridge?.disconnect()
+    val bridge = TcpStreamBridge<SdrReading.Nxdn>("NXDN network bridge", NxdnJsonParser::parse)
+    nxdnBridge = bridge
+    bridge.connect(
+      scope = scope,
+      host = host,
+      port = nxdnPort,
+      onReading = { reading -> handleSdrReading(reading) },
+      onError = { message ->
+        DebugLog.log("NXDN network bridge error: $message")
+        ScanDiagnosticsStore.update { snapshot -> snapshot.copy(lastError = "NXDN: $message") }
       }
     )
   }
@@ -383,11 +435,15 @@ class SdrController(
     val enabledProtocols = SdrPreferences.enabledProtocols(context)
     val adsbEnabled = "adsb" in enabledProtocols
     val p25Enabled = "p25" in enabledProtocols
+    val dmrEnabled = "dmr" in enabledProtocols
+    val nxdnEnabled = "nxdn" in enabledProtocols
     val rtl433Frequencies = buildRtl433FrequencyList(enabledProtocols)
     val remainingDevices = allDevices.toMutableList()
     val reservedDedicatedSlots = listOfNotNull(
       "adsb".takeIf { adsbEnabled },
-      "p25".takeIf { p25Enabled }
+      "p25".takeIf { p25Enabled },
+      "dmr".takeIf { dmrEnabled },
+      "nxdn".takeIf { nxdnEnabled }
     )
     var startupWarning: String? = null
 

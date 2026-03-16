@@ -216,6 +216,7 @@ class AlertsActivity : AppCompatActivity() {
         AlertRuleType.RSSI_THRESHOLD -> "Enter a valid RSSI threshold in dBm (e.g. -50)."
         AlertRuleType.NEW_DEVICE -> getString(R.string.alert_invalid_protocol)
         AlertRuleType.ABSENCE -> "Enter a valid number of minutes."
+        AlertRuleType.SURVEILLANCE -> "Surveillance alerts are configured automatically."
       }
       toast(message)
       return

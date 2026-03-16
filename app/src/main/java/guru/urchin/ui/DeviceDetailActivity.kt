@@ -227,6 +227,8 @@ class DeviceDetailActivity : AppCompatActivity() {
           add(String.format("Position: %.4f, %.4f", metadata.adsbLat, metadata.adsbLon))
         }
         metadata.adsbSquawk?.let { add("Squawk: $it") }
+        metadata.adsbRangeKm?.let { add(String.format("Range: %.1f km", it)) }
+        metadata.adsbBearingDeg?.let { add(String.format("Bearing: %.0f°", it)) }
         metadata.rssi?.let { add(Formatters.formatRssi(it)) }
       }
       "p25" -> buildList {
@@ -235,6 +237,9 @@ class DeviceDetailActivity : AppCompatActivity() {
         metadata.p25Nac?.let { add("NAC: $it") }
         metadata.p25Wacn?.let { add("WACN: $it") }
         metadata.p25SystemId?.let { add("System ID: $it") }
+        metadata.p25EncryptionAlgorithm?.let { add("Encryption: $it") }
+        if (metadata.p25Emergency == true) add("EMERGENCY")
+        metadata.p25VoiceOrData?.let { add("Type: $it") }
         metadata.rssi?.let { add(Formatters.formatRssi(it)) }
       }
       "lorawan" -> buildList {
@@ -243,6 +248,9 @@ class DeviceDetailActivity : AppCompatActivity() {
         metadata.loraCodingRate?.let { add("Coding Rate: $it") }
         metadata.loraPayloadSize?.let { add("Payload: $it bytes") }
         metadata.loraCrcOk?.let { add("CRC: ${if (it) "OK" else "Failed"}") }
+        metadata.loraFPort?.let { add("FPort: $it") }
+        metadata.loraFrameCounter?.let { add("Frame Count: $it") }
+        metadata.loraMType?.let { add("MType: $it") }
         metadata.rssi?.let { add(Formatters.formatRssi(it)) }
       }
       "meshtastic" -> buildList {
@@ -252,6 +260,8 @@ class DeviceDetailActivity : AppCompatActivity() {
         metadata.meshHopLimit?.let { add("Hop Limit: $it") }
         metadata.meshHopStart?.let { add("Hop Start: $it") }
         metadata.meshChannelHash?.let { add("Channel Hash: $it") }
+        metadata.meshPortNum?.let { add("Port: $it") }
+        metadata.meshPayloadText?.let { add("Text: $it") }
         metadata.rssi?.let { add(Formatters.formatRssi(it)) }
       }
       "wmbus" -> buildList {
@@ -265,6 +275,25 @@ class DeviceDetailActivity : AppCompatActivity() {
         metadata.zwaveHomeId?.let { add("Home ID: $it") }
         metadata.zwaveNodeId?.let { add("Node ID: $it") }
         metadata.zwaveFrameType?.let { add("Frame Type: $it") }
+        metadata.zwaveCommandClass?.let { add("Command Class: $it") }
+        metadata.zwaveNodeRole?.let { add("Role: $it") }
+        metadata.zwaveSecurityLevel?.let { add("Security: $it") }
+        metadata.rssi?.let { add(Formatters.formatRssi(it)) }
+      }
+      "dmr" -> buildList {
+        metadata.dmrRadioId?.let { add("Radio ID: $it") }
+        metadata.dmrColorCode?.let { add("Color Code: $it") }
+        metadata.dmrSlot?.let { add("Slot: $it") }
+        metadata.dmrTalkGroup?.let { add("Talk Group: $it") }
+        metadata.dmrDataType?.let { add("Type: $it") }
+        metadata.dmrEncrypted?.let { add("Encrypted: ${if (it) "Yes" else "No"}") }
+        metadata.rssi?.let { add(Formatters.formatRssi(it)) }
+      }
+      "nxdn" -> buildList {
+        metadata.nxdnUnitId?.let { add("Unit ID: $it") }
+        metadata.nxdnRan?.let { add("RAN: $it") }
+        metadata.nxdnTalkGroup?.let { add("Talk Group: $it") }
+        metadata.nxdnMessageType?.let { add("Message Type: $it") }
         metadata.rssi?.let { add(Formatters.formatRssi(it)) }
       }
       "sidewalk" -> buildList {

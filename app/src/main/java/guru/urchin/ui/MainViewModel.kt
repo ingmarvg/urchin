@@ -68,6 +68,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         ?: metadata.pocsagCapCode
         ?: metadata.adsbIcao
         ?: metadata.p25UnitId
+        ?: metadata.dmrRadioId
+        ?: metadata.nxdnUnitId
         ?: metadata.loraDevAddr
         ?: metadata.meshNodeId
         ?: metadata.wmbusSerialNumber

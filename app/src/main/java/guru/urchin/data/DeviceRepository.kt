@@ -20,6 +20,8 @@ class DeviceRepository(
     private const val RETENTION_DAYS_ADSB = 7L
     private const val RETENTION_DAYS_P25 = 14L
     private const val RETENTION_DAYS_LORAWAN = 14L
+    private const val RETENTION_DAYS_DMR = 14L
+    private const val RETENTION_DAYS_NXDN = 14L
 
     private const val RETENTION_DAYS_MESHTASTIC = 14L
     private const val RETENTION_DAYS_SIDEWALK = 14L
@@ -30,6 +32,8 @@ class DeviceRepository(
     fun retentionDaysForProtocol(protocolType: String?): Long = when (protocolType) {
       "adsb" -> RETENTION_DAYS_ADSB
       "p25" -> RETENTION_DAYS_P25
+      "dmr" -> RETENTION_DAYS_DMR
+      "nxdn" -> RETENTION_DAYS_NXDN
       "lorawan" -> RETENTION_DAYS_LORAWAN
       "meshtastic" -> RETENTION_DAYS_MESHTASTIC
       "sidewalk" -> RETENTION_DAYS_SIDEWALK
@@ -137,7 +141,7 @@ class DeviceRepository(
       return
     }
     val msPerDay = 24 * 60 * 60 * 1000L
-    for ((protocol, days) in mapOf("adsb" to RETENTION_DAYS_ADSB, "p25" to RETENTION_DAYS_P25, "lorawan" to RETENTION_DAYS_LORAWAN, "meshtastic" to RETENTION_DAYS_MESHTASTIC, "sidewalk" to RETENTION_DAYS_SIDEWALK)) {
+    for ((protocol, days) in mapOf("adsb" to RETENTION_DAYS_ADSB, "p25" to RETENTION_DAYS_P25, "dmr" to RETENTION_DAYS_DMR, "nxdn" to RETENTION_DAYS_NXDN, "lorawan" to RETENTION_DAYS_LORAWAN, "meshtastic" to RETENTION_DAYS_MESHTASTIC, "sidewalk" to RETENTION_DAYS_SIDEWALK)) {
       val threshold = now - days * msPerDay
       sightingDao.pruneOlderThanForProtocol(threshold, protocol)
       deviceDao.deleteOlderThanForProtocol(threshold, protocol)

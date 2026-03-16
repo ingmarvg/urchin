@@ -14,6 +14,8 @@ object SdrPreferences {
   private const val KEY_ADSB_NETWORK_PORT = "sdr_adsb_network_port"
   private const val KEY_UAT_NETWORK_PORT = "sdr_uat_network_port"
   private const val KEY_P25_NETWORK_PORT = "sdr_p25_network_port"
+  private const val KEY_DMR_NETWORK_PORT = "sdr_dmr_network_port"
+  private const val KEY_NXDN_NETWORK_PORT = "sdr_nxdn_network_port"
   private const val KEY_LORAWAN_NETWORK_PORT = "sdr_lorawan_network_port"
   private const val KEY_WMBUS_NETWORK_PORT = "sdr_wmbus_network_port"
   private const val KEY_ZWAVE_NETWORK_PORT = "sdr_zwave_network_port"
@@ -107,6 +109,20 @@ object SdrPreferences {
 
   fun setP25NetworkPort(context: Context, port: Int) {
     prefs(context).edit().putInt(KEY_P25_NETWORK_PORT, port).apply()
+  }
+
+  fun dmrNetworkPort(context: Context): Int =
+    prefs(context).getInt(KEY_DMR_NETWORK_PORT, 23457)
+
+  fun setDmrNetworkPort(context: Context, port: Int) {
+    prefs(context).edit().putInt(KEY_DMR_NETWORK_PORT, port).apply()
+  }
+
+  fun nxdnNetworkPort(context: Context): Int =
+    prefs(context).getInt(KEY_NXDN_NETWORK_PORT, 23458)
+
+  fun setNxdnNetworkPort(context: Context, port: Int) {
+    prefs(context).edit().putInt(KEY_NXDN_NETWORK_PORT, port).apply()
   }
 
   fun lorawanNetworkPort(context: Context): Int =

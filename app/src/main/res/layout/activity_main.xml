@@ -90,6 +90,20 @@
           android:text="@string/protocol_filter_p25" />
 
         <com.google.android.material.chip.Chip
+          android:id="@+id/chipDmr"
+          style="@style/Widget.MaterialComponents.Chip.Filter"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/protocol_filter_dmr" />
+
+        <com.google.android.material.chip.Chip
+          android:id="@+id/chipNxdn"
+          style="@style/Widget.MaterialComponents.Chip.Filter"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/protocol_filter_nxdn" />
+
+        <com.google.android.material.chip.Chip
           android:id="@+id/chipLoRaWan"
           style="@style/Widget.MaterialComponents.Chip.Filter"
           android:layout_width="wrap_content"
@@ -393,6 +407,54 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:hint="@string/p25_network_port"
+          android:inputType="number"
+          android:textColor="@color/urchin_on_surface" />
+      </com.google.android.material.textfield.TextInputLayout>
+
+      <CheckBox
+        android:id="@+id/protocolDmr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/protocol_dmr"
+        android:textColor="@color/urchin_on_surface" />
+
+      <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/dmrPortLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:visibility="gone">
+
+        <com.google.android.material.textfield.TextInputEditText
+          android:id="@+id/dmrPortInput"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:hint="@string/dmr_network_port"
+          android:inputType="number"
+          android:textColor="@color/urchin_on_surface" />
+      </com.google.android.material.textfield.TextInputLayout>
+
+      <CheckBox
+        android:id="@+id/protocolNxdn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/protocol_nxdn"
+        android:textColor="@color/urchin_on_surface" />
+
+      <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/nxdnPortLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:visibility="gone">
+
+        <com.google.android.material.textfield.TextInputEditText
+          android:id="@+id/nxdnPortInput"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:hint="@string/nxdn_network_port"
           android:inputType="number"
           android:textColor="@color/urchin_on_surface" />
       </com.google.android.material.textfield.TextInputLayout>

@@ -281,6 +281,8 @@ class MainActivity : AppCompatActivity() {
     binding.protocolAdsb.isChecked = "adsb" in enabled
     binding.protocolUat.isChecked = "uat" in enabled
     binding.protocolP25.isChecked = "p25" in enabled
+    binding.protocolDmr.isChecked = "dmr" in enabled
+    binding.protocolNxdn.isChecked = "nxdn" in enabled
     binding.protocolLoRaWan.isChecked = "lorawan" in enabled
     binding.protocolMeshtastic.isChecked = "meshtastic" in enabled
     binding.protocolWmbus.isChecked = "wmbus" in enabled
@@ -292,6 +294,8 @@ class MainActivity : AppCompatActivity() {
     }
     updateUatPortVisibility()
     updateP25PortVisibility()
+    updateDmrPortVisibility()
+    updateNxdnPortVisibility()
     updateLoRaWanPortVisibility()
     updateWmbusPortVisibility()
     updateZwavePortVisibility()
@@ -300,6 +304,8 @@ class MainActivity : AppCompatActivity() {
     updateHoppingWarning()
     binding.uatPortInput.setText(SdrPreferences.uatNetworkPort(this).toString())
     binding.p25PortInput.setText(SdrPreferences.p25NetworkPort(this).toString())
+    binding.dmrPortInput.setText(SdrPreferences.dmrNetworkPort(this).toString())
+    binding.nxdnPortInput.setText(SdrPreferences.nxdnNetworkPort(this).toString())
     binding.lorawanPortInput.setText(SdrPreferences.lorawanNetworkPort(this).toString())
     binding.wmbusPortInput.setText(SdrPreferences.wmbusNetworkPort(this).toString())
     binding.zwavePortInput.setText(SdrPreferences.zwaveNetworkPort(this).toString())
@@ -314,6 +320,8 @@ class MainActivity : AppCompatActivity() {
       if (binding.protocolAdsb.isChecked) protocols.add("adsb")
       if (binding.protocolUat.isChecked) protocols.add("uat")
       if (binding.protocolP25.isChecked) protocols.add("p25")
+      if (binding.protocolDmr.isChecked) protocols.add("dmr")
+      if (binding.protocolNxdn.isChecked) protocols.add("nxdn")
       if (binding.protocolLoRaWan.isChecked) protocols.add("lorawan")
       if (binding.protocolMeshtastic.isChecked) protocols.add("meshtastic")
       if (binding.protocolWmbus.isChecked) protocols.add("wmbus")
@@ -329,6 +337,8 @@ class MainActivity : AppCompatActivity() {
       SdrPreferences.setEnabledProtocols(this, protocols)
       updateUatPortVisibility()
       updateP25PortVisibility()
+      updateDmrPortVisibility()
+      updateNxdnPortVisibility()
       updateLoRaWanPortVisibility()
       updateWmbusPortVisibility()
       updateZwavePortVisibility()
@@ -342,6 +352,8 @@ class MainActivity : AppCompatActivity() {
     binding.protocolAdsb.setOnCheckedChangeListener(protocolToggleListener)
     binding.protocolUat.setOnCheckedChangeListener(protocolToggleListener)
     binding.protocolP25.setOnCheckedChangeListener(protocolToggleListener)
+    binding.protocolDmr.setOnCheckedChangeListener(protocolToggleListener)
+    binding.protocolNxdn.setOnCheckedChangeListener(protocolToggleListener)
     binding.protocolLoRaWan.setOnCheckedChangeListener(protocolToggleListener)
     binding.protocolMeshtastic.setOnCheckedChangeListener(protocolToggleListener)
     binding.protocolWmbus.setOnCheckedChangeListener(protocolToggleListener)
@@ -366,6 +378,20 @@ class MainActivity : AppCompatActivity() {
       if (bindingPrefs) return@doAfterTextChanged
       val port = text?.toString()?.toIntOrNull() ?: return@doAfterTextChanged
       SdrPreferences.setP25NetworkPort(this, port)
+      restartIfScanning(source = SdrPreferences.SdrSource.NETWORK)
+    }
+
+    binding.dmrPortInput.doAfterTextChanged { text ->
+      if (bindingPrefs) return@doAfterTextChanged
+      val port = text?.toString()?.toIntOrNull() ?: return@doAfterTextChanged
+      SdrPreferences.setDmrNetworkPort(this, port)
+      restartIfScanning(source = SdrPreferences.SdrSource.NETWORK)
+    }
+
+    binding.nxdnPortInput.doAfterTextChanged { text ->
+      if (bindingPrefs) return@doAfterTextChanged
+      val port = text?.toString()?.toIntOrNull() ?: return@doAfterTextChanged
+      SdrPreferences.setNxdnNetworkPort(this, port)
       restartIfScanning(source = SdrPreferences.SdrSource.NETWORK)
     }
 
@@ -410,6 +436,18 @@ class MainActivity : AppCompatActivity() {
     binding.p25PortLayout.isVisible = p25Checked && isNetwork
   }
 
+  private fun updateDmrPortVisibility() {
+    val dmrChecked = binding.protocolDmr.isChecked
+    val isNetwork = SdrPreferences.source(this) == SdrPreferences.SdrSource.NETWORK
+    binding.dmrPortLayout.isVisible = dmrChecked && isNetwork
+  }
+
+  private fun updateNxdnPortVisibility() {
+    val nxdnChecked = binding.protocolNxdn.isChecked
+    val isNetwork = SdrPreferences.source(this) == SdrPreferences.SdrSource.NETWORK
+    binding.nxdnPortLayout.isVisible = nxdnChecked && isNetwork
+  }
+
   private fun updateLoRaWanPortVisibility() {
     val lorawanChecked = binding.protocolLoRaWan.isChecked
     val isNetwork = SdrPreferences.source(this) == SdrPreferences.SdrSource.NETWORK
@@ -447,7 +485,7 @@ class MainActivity : AppCompatActivity() {
     if (binding.protocolPocsag.isChecked) frequencyCount++
     if (binding.protocolAdsb.isChecked) frequencyCount++
     if (binding.protocolUat.isChecked) frequencyCount++
-    // P25 uses its own dongle/binary, excluded from frequency count
+    // P25, DMR, and NXDN use their own dongle/binary, excluded from frequency count
     binding.hoppingWarning.isVisible = isUsb && frequencyCount > 1
   }
 
@@ -459,6 +497,8 @@ class MainActivity : AppCompatActivity() {
         R.id.chipAdsb in checkedIds -> "adsb"
         R.id.chipUat in checkedIds -> "uat"
         R.id.chipP25 in checkedIds -> "p25"
+        R.id.chipDmr in checkedIds -> "dmr"
+        R.id.chipNxdn in checkedIds -> "nxdn"
         R.id.chipLoRaWan in checkedIds -> "lorawan"
         R.id.chipMeshtastic in checkedIds -> "meshtastic"
         R.id.chipWmbus in checkedIds -> "wmbus"
@@ -475,6 +515,8 @@ class MainActivity : AppCompatActivity() {
     binding.usbHardwareGroup.isVisible = source == SdrPreferences.SdrSource.USB
     updateUatPortVisibility()
     updateP25PortVisibility()
+    updateDmrPortVisibility()
+    updateNxdnPortVisibility()
     updateLoRaWanPortVisibility()
     updateWmbusPortVisibility()
     updateZwavePortVisibility()
@@ -625,6 +667,16 @@ class MainActivity : AppCompatActivity() {
       val port = binding.p25PortInput.text?.toString()?.toIntOrNull()
         ?: SdrPreferences.p25NetworkPort(this)
       targets.add(ProbeTarget("P25", host, port))
+    }
+    if (binding.protocolDmr.isChecked) {
+      val port = binding.dmrPortInput.text?.toString()?.toIntOrNull()
+        ?: SdrPreferences.dmrNetworkPort(this)
+      targets.add(ProbeTarget("DMR", host, port))
+    }
+    if (binding.protocolNxdn.isChecked) {
+      val port = binding.nxdnPortInput.text?.toString()?.toIntOrNull()
+        ?: SdrPreferences.nxdnNetworkPort(this)
+      targets.add(ProbeTarget("NXDN", host, port))
     }
     if (binding.protocolLoRaWan.isChecked || binding.protocolMeshtastic.isChecked) {
       val port = binding.lorawanPortInput.text?.toString()?.toIntOrNull()

@@ -136,6 +136,8 @@ class DeviceAdapter(
       "pocsag" -> R.drawable.ic_protocol_pocsag
       "adsb", "uat" -> R.drawable.ic_protocol_adsb
       "p25" -> R.drawable.ic_protocol_p25
+      "dmr" -> R.drawable.ic_protocol_dmr
+      "nxdn" -> R.drawable.ic_protocol_nxdn
       "lorawan" -> R.drawable.ic_protocol_lorawan
       "meshtastic" -> R.drawable.ic_protocol_meshtastic
       "wmbus" -> R.drawable.ic_protocol_wmbus
